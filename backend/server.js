@@ -4,12 +4,12 @@ const cors = require('cors');
 const PORT = 4000;
 const request = require('request'); 
 const cheerio = require('cheerio'); 
- 
+const Axios = require('axios')
 
 app.use(cors());
   
 const URL = "https://www.anpe-mali.org/appels-doffres/"; 
-const arr = [];   
+const offresArray = [];   
 
 
 app.get('/',(req, res) => {
@@ -18,15 +18,14 @@ app.get('/',(req, res) => {
 })
 
 app.get('/api/appels-doffres', (req, res) => {
-    request(URL, function (err, res, body) { 
-        if(err) 
-        { 
-            console.log(err); 
-        } 
-        else
-        { 
+
+    Axios.get(URL)
+    .then((response) => {
+        if (response.status === 200){
+            const body = response.data;
+
             
-            let date="";
+            
             let arr_info = [];
             let $ = cheerio.load(body); 
             
@@ -46,16 +45,18 @@ app.get('/api/appels-doffres', (req, res) => {
                     date : arr_info[2]
                 }; 
                             
-                console.log(obj);
-                arr.push(obj); 
+                
+                offresArray.push(obj); 
                 }
             }); 
             
-            
-            
-        } 
-    }); 
-    res.json(arr);
+            res.json({offres: offresArray});
+
+        }
+
+
+    }, (error) => console.log(error));
+               // res.send("done");
 })
 app.listen(PORT, function(){
     console.log('Server is running on Port: '+ PORT );
