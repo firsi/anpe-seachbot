@@ -41,8 +41,10 @@ app.get('/api/appels-doffres', (req, res) => {
                 const obj = { 
                     link : link, 
                     title : title,
+                    author: arr_info[0],
                     content : content,
-                    date : arr_info[2]
+                    date : arr_info[2],
+                    read : arr_info[1]
                 }; 
                             
                 
