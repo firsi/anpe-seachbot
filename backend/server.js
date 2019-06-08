@@ -9,7 +9,7 @@ const Axios = require('axios')
 app.use(cors());
   
 const URL = "https://www.anpe-mali.org/appels-doffres/"; 
-const offresArray = [];   
+   
 
 
 app.get('/',(req, res) => {
@@ -18,7 +18,7 @@ app.get('/',(req, res) => {
 })
 
 app.get('/api/appels-doffres', (req, res) => {
-
+    var offresArray = [];
     Axios.get(URL)
     .then((response) => {
         if (response.status === 200){
@@ -44,7 +44,7 @@ app.get('/api/appels-doffres', (req, res) => {
                     author: arr_info[0],
                     content : content,
                     date : arr_info[2],
-                    read : arr_info[1]
+                    read : arr_info[3]
                 }; 
                             
                 
@@ -52,10 +52,10 @@ app.get('/api/appels-doffres', (req, res) => {
                 }
             }); 
             
-            res.json({offres: offresArray});
+          
 
         }
-
+        res.json({offres: offresArray});
 
     }, (error) => console.log(error));
                // res.send("done");
