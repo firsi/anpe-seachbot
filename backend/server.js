@@ -2,64 +2,30 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const PORT = 4000;
-const request = require('request'); 
-const cheerio = require('cheerio'); 
-const Axios = require('axios')
+const mongoose = require('mongoose')
+const mongodb = require('mongodb')
+const cron = require('node-cron')
 
 app.use(cors());
   
-const URL = "https://www.anpe-mali.org/appels-doffres/"; 
-   
+ const MONGO_CONNECTION = "mongodb+srv://firsi:firsi1234@cluster0-fdrjt.mongodb.net/test?retryWrites=true&w=majority"
+ mongoose.connect(MONGO_CONNECTION, {useNewUrlParser: true})
+
+ Offre = require('./models/offre.js')
 
 
-app.get('/',(req, res) => {
-
-    res.send('server running on port 5000');                
+//Automated task on db
+cron.schedule("0 0 * * * *", () => {
+    require('./lib/UpdateDb.js')
 })
 
-app.get('/api/appels-doffres', (req, res) => {
-    var offresArray = [];
-    Axios.get(URL)
-    .then((response) => {
-        if (response.status === 200){
-            const body = response.data;
 
-            
-            
-            let arr_info = [];
-            let $ = cheerio.load(body); 
-            
-            $('body > article').each(function(index){
-                
-                if(index < 50){
-                  
-                const link = $(this).find('div.post-title>a').attr('href'); 
-                const title = $(this).find('div.post-title').text(); 
-                const info = $(this).find('div.post-infos').text();
-                const content = $(this).find('div.content').text();
-                arr_info = info.split("•");
-                const obj = { 
-                    link : link, 
-                    title : title,
-                    author: arr_info[0],
-                    content : content,
-                    date : arr_info[2],
-                    read : arr_info[3]
-                }; 
-                            
-                
-                offresArray.push(obj); 
-                }
-            }); 
-            
-          
+//routes
 
-        }
-        res.json({offres: offresArray});
+require('./routes/createDB.js')(app)/*this is run once for initial saving of the Db*/
+require('./routes/retrieveOffre.js')(app)
 
-    }, (error) => console.log(error));
-               // res.send("done");
-})
+
 app.listen(PORT, function(){
     console.log('Server is running on Port: '+ PORT );
 })
